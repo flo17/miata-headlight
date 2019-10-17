@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="MIATA">
+  <meta name="author" content="Florent Kilchoer">
+  <title>MIATA</title>
+  <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">-->
+  <link rel="stylesheet" href="theme.css" type="text/css">
+  <link href="bootstrap.min.css" rel="stylesheet">
+  <!--<link href="/bootstrap.min.css" rel="stylesheet">-->
+</head>
+
+<body>
+  <script>
+  var LEFT = 0;
+  var RIGHT = 1;
+  var BOTH = 2;
+
+  // possible position
+  var DOWN = 0;
+  var MIDDLE = 1;
+  var UP = 2;
+  </script>
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="display-4">MIATA</h1>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-4 text-center"><img class="img-fluid d-block img-responsive" src="up.png" onclick="move(UP, BOTH);"></div>
+      <div class="col-sm-4 text-center"><img class="img-fluid d-block img-responsive" src="middle.png" onclick="move(MIDDLE, BOTH);"></div>
+      <div class="col-sm-4 text-center"><img class="img-fluid d-block img-responsive" src="down.png" onclick="move(DOWN, BOTH);"></div>
+    </div>
+  </div>
+    <div class="container">
+
+      <div class="row">
+          <div class="col-4 text-center">LEFT</div>
+          <div class="col-4 text-center">BOTH</div>
+          <div class="col-4 text-center">RIGHT</div>
+      </div>
+
+      <div class="row">
+        <div class="col-4 text-center"><button type="button" id="upleft" class="btn btn-block btn-primary" onclick="move(UP, LEFT);">UP</button></div>
+        <div class="col-4 text-center"><button type="button" id="upboth" class="btn btn-block btn-primary" onclick="move(UP, BOTH);">UP</button></div>
+        <div class="col-4 text-center"><button type="button" id="upright" class="btn btn-block btn-primary" onclick="move(UP, RIGHT);">UP</button></div>
+      </div>
+      <br>
+      <div class="row">
+          <div class="col-4 text-center" id="middleleft"><button type="button" class="btn btn-block btn-primary" onclick="move(MIDDLE, LEFT);">MIDDLE</button></div>
+          <div class="col-4 text-center" id="middleboth"><button type="button" class="btn btn-block btn-primary" onclick="move(MIDDLE, BOTH);">MIDDLE</button></div>
+          <div class="col-4 text-center" id="middleright"><button type="button" class="btn btn-block btn-primary" onclick="move(MIDDLE, RIGHT);">MIDDLE</button></div>
+      </div>
+      <br>
+      <div class="row">
+          <div class="col-4 text-center" id="downleft"><button type="button" class="btn btn-block btn-primary" onclick="move(DOWN, LEFT);">DOWN</button></div>
+          <div class="col-4 text-center" id="downboth"><button type="button" class="btn btn-block btn-primary" onclick="move(DOWN, BOTH);">DOWN</button></div>
+          <div class="col-4 text-center" id="downright"><button type="button" class="btn btn-block btn-primary" onclick="move(DOWN, RIGHT);">DOWN</button></div>
+      </div>
+      <br>
+      <div class="row">
+          <div class="col-4 text-center" id="downleft">
+            <label class="switch">
+                  <input type="checkbox" id="leftLight">
+                  <span class="slider round"></span>
+            </label></div>
+          <div class="col-4 text-center" id="downboth">
+            <label class="switch">
+              <input type="checkbox" id="bothLight">
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <div class="col-4 text-center" id="downright">
+            <label class="switch">
+              <input type="checkbox" id="rightLight">
+              <span class="slider round"></span>
+            </label>
+          </div>
+      </div>
+      <div class="row">
+          <div class="col-12">
+              <input type="color" id="ledColor" value="#ff0000">
+          </div>
+      </div>
+
+
+
+
+
+    </div>
+  </div>
+
+
+  <script src="jquery-3.3.1.min.js"></script>
+  <script src="bootstrap.min.js"></script>
+
+  <script type = "text/javascript">
+
+     // Let us open a web socket
+     var ws = new WebSocket("ws://192.168.4.1:81");
+
+     ws.onopen = function() {
+        // Web Socket is connected, send data using send()
+        ws.send("Message to send");
+     };
+
+     ws.onmessage = function (evt) {
+        var received_msg = evt.data;
+     };
+
+     ws.onclose = function() {
+        // websocket is closed.
+     };
+
+     function move(direction, headlight){
+     	ws.send("move" + ":" + direction + ":" + headlight);
+     	//alert("move" + ":" + direction + ":" + headlight);
+     }
+
+     $('#leftLight').change(function(){
+         ws.send('light' + ":" + $(this).prop('checked') + ":" + LEFT);
+     });
+     $('#rightLight').change(function(){
+         ws.send('light' + ":" + $(this).prop('checked') + ":" + RIGHT);
+     });
+     $('#bothLight').change(function(){
+         ws.send('light' + ":" + $(this).prop('checked') + ":" + BOTH);
+     });
+
+
+    var ledColor = document.getElementById("ledColor");
+    ledColor.addEventListener("input", function() {
+      ws.send('led' + ":" + ledColor.value);
+    }, false);
+    ledColor.addEventListener("change", function() {
+      ws.send('led' + ":" + ledColor.value);
+    }, false);
+
+
+  </script>
+</body>
+
+</html>
